@@ -11,6 +11,10 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "aws-sdk": "^2.1693.0",
     "yargs": "^18.1.0"
+  },
+  "allowScripts": {
+    "aws-sdk@2.1693.0": true
   }
 }

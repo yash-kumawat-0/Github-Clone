@@ -1,0 +1,7 @@
+# Dependencies are installed locally from package-lock.json.
+**/node_modules/
+
+# Keep local environment secrets out of commits.
+.env
+.env.*
+!.env.example
