@@ -8,6 +8,7 @@ const { pullRepo } = require("./controllers/pull");
 const { revertRepo } = require("./controllers/revert");
 
 yargs(hideBin(process.argv))
+    .command("start", "Start a Server", {}, startServer)
     .command("init", "Initialize a new Repository", {}, initRepo)
     .command("add <file>", "Add a file to the Repository", (yargs)=>{
         yargs.positional("file", {
@@ -36,3 +37,7 @@ yargs(hideBin(process.argv))
         revertRepo(argv.commitID)
     })
     .demandCommand(1, "You need at least one command").help().argv;
+
+function startServer(){
+    console.log("Server Logic Called");
+}
