@@ -22,7 +22,9 @@ yargs(hideBin(process.argv))
             describe: "Commit Message",
             type: "string"
         })
-    }, commitRepo)
+    }, (argv)=>{
+        commitRepo(argv.message)
+    })
     .command("push", "Push commits to S3", {}, pushRepo)
     .command("pull", "Pull commits to S3", {}, pullRepo)
     .command("revert <commitID>", "Revert to the specific commit",(yargs)=>{
@@ -30,5 +32,7 @@ yargs(hideBin(process.argv))
             describe: "commit ID to revert to",
             type: "string"
         })
-    }, revertRepo)
+    }, (argv)=>{
+        revertRepo(argv.commitID)
+    })
     .demandCommand(1, "You need at least one command").help().argv;
