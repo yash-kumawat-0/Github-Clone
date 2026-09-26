@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const http = require("http");
 const { Server } = require("socket.io");
+const mainRouter = require("./routes/main.router");
 
 const yargs = require("yargs");
 const { hideBin } = require("yargs/helpers");
@@ -84,9 +85,7 @@ function startServer() {
 
   app.use(cors({ origin: "*" }));
 
-  app.get("/", (req, res) => {
-    res.send("WELCOME");
-  });
+  app.use("/", mainRouter);
 
   const user = "test";
 
@@ -98,23 +97,23 @@ function startServer() {
     },
   });
 
-  io.on("connection", (socket)=>{
-    socket.on("joinRoom", (userID)=>{
-        user = userID;
-        console.log("=========");
-        console.log(user);
-        console.log("=========");
-        socket.join(user);
+  io.on("connection", (socket) => {
+    socket.on("joinRoom", (userID) => {
+      user = userID;
+      console.log("=========");
+      console.log(user);
+      console.log("=========");
+      socket.join(user);
     });
   });
 
   const db = mongoose.connection;
 
-  db.once("open", async ()=>{
+  db.once("open", async () => {
     console.log("CRUD operations are called.");
-  })
+  });
 
-  httpServer.listen(port, ()=>{
-    console.log(`SERVER IS RUNNING ON PORT: ${port}`)
-  })
+  httpServer.listen(port, () => {
+    console.log(`SERVER IS RUNNING ON PORT: ${port}`);
+  });
 }
