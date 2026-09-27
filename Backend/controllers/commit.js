@@ -4,7 +4,7 @@ const {v4:uuidv4} = require("uuid")
 
 async function commitRepo(message){
     const repoPath = path.resolve(process.cwd(), ".mygit");
-    const  stagedPath = path.join(repoPath, "staging");
+    const stagedPath = path.join(repoPath, "staging");
     const commitsPath = path.join(repoPath, "commits");
 
     try{
