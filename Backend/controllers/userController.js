@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { MongoClient } = require("mongodb");
+const { MongoClient, ReturnDocument } = require("mongodb");
 const dotenv = require("dotenv");
 var ObjectId = require("mongodb").ObjectId;
 
@@ -111,19 +111,69 @@ const getUserProfile = async (req, res) => {
     }
 
     res.send(user, { message: "Profile Fetched" });
-    
   } catch (err) {
     console.error("Error While Fetching: ", err.message);
     res.status(500).send({ message: "Server Error" });
   }
 };
 
-const updateUserProfile = (req, res) => {
-  res.send("PROFILE UPDATED");
+const updateUserProfile = async (req, res) => {
+  const currentID = req.params.id;
+  const { email, password } = req.body;
+
+  try {
+    await connectClient();
+    const db = client.db("Github-Clone");
+    const usersCollection = db.collection("users");
+
+    let updateFields = { email };
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+      updateFields.password = hashedPassword;
+    }
+
+    const results = await usersCollection.findOneAndUpdate(
+      {
+        _id: new ObjectId(currentID),
+      },
+      { $set: updateFields },
+      { returnDocument: "after" },
+    );
+
+    if(!results){
+      return res.status(404).json({message: "Failed to Update Credentials!"})
+    }
+
+    return res.json(results);
+
+  } catch (err) {
+    console.error("Error While Updating: ", err.message);
+    res.status(500).send({ message: "Server Error" });
+  }
 };
 
-const deleteUserProfile = (req, res) => {
-  res.send("PROFILE DELETED");
+const deleteUserProfile = async (req, res) => {
+  const currentID = req.params.id;
+  try{
+    await connectClient();
+    const db = client.db("Github-Clone");
+    const usersCollection = db.collection("users");
+
+    const result = await usersCollection.deleteOne({
+      _id: new ObjectId(currentID),
+    })
+
+    if(result.deleteCount==0){
+      return res.status(404).json({message: "User Not Found"});
+    }
+
+    res.json({message: "User Profile Deleted"});
+
+  }catch(err){
+    console.error("Error While Deleting: ", err.message);
+    res.status(500).send({message: "Server Error"});
+  }
 };
 
 module.exports = {
