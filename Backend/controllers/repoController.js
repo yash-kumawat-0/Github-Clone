@@ -4,20 +4,20 @@ const User = require("../models/userModel")
 const Issue = require("../models/issueModel")
 
 const createRepository = async (req, res) => {
-  const {owner, repositoryName, issues, content, description, visibility} = req.body;
+  const {owner, name, issues, content, description, visibility} = req.body;
   try{
 
-    if(!repositoryName){
-      res.status(404).json({error: "Repository name is required!"});
+    if(!name){
+      return res.status(404).json({error: "Repository name is required!"});
     }
 
     if(!mongoose.Types.ObjectId.isValid(owner)){
-      res.status(404).json({error: "Invalid UserID!"});
+      return res.status(404).json({error: "Invalid UserID!"});
     }
 
     const newRepository = new Repository({
       owner,
-      repositoryName,
+      name,
       issues,
       content,
       description,
