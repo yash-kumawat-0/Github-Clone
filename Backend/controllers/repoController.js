@@ -15,6 +15,8 @@ const createRepository = async (req, res) => {
       return res.status(404).json({error: "Invalid UserID!"});
     }
 
+    console.log("Mongoose Database: ", mongoose.connection.name);
+
     const newRepository = new Repository({
       owner,
       name,
@@ -37,8 +39,18 @@ const createRepository = async (req, res) => {
   }
 };
 
-const getAllRepositories = (req, res) => {
-  res.send("ALL REPO FETCHED");
+const getAllRepositories = async (req, res) => {
+  try{
+    console.log("Mongoose Database: ", mongoose.connection.name);
+
+    const repositories = await Repository.find({}).populate("owner").populate("issues");
+
+    res.json(repositories);
+
+  }catch(err){
+    console.error("Error while fetching repositories: ", err.message);
+    res.status(500).send({message: "Server Error"});
+  }
 };
 
 const fetchRepositoryById = (req, res) => {
