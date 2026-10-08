@@ -1,21 +1,18 @@
 const mongoose = require("mongoose");
-const Repository = require("../models/repoModel")
-const User = require("../models/userModel")
-const Issue = require("../models/issueModel")
+const Repository = require("../models/repoModel");
+const User = require("../models/userModel");
+const Issue = require("../models/issueModel");
 
 const createRepository = async (req, res) => {
-  const {owner, name, issues, content, description, visibility} = req.body;
-  try{
-
-    if(!name){
-      return res.status(404).json({error: "Repository name is required!"});
+  const { owner, name, issues, content, description, visibility } = req.body;
+  try {
+    if (!name) {
+      return res.status(404).json({ error: "Repository name is required!" });
     }
 
-    if(!mongoose.Types.ObjectId.isValid(owner)){
-      return res.status(404).json({error: "Invalid UserID!"});
+    if (!mongoose.Types.ObjectId.isValid(owner)) {
+      return res.status(404).json({ error: "Invalid UserID!" });
     }
-
-    console.log("Mongoose Database: ", mongoose.connection.name);
 
     const newRepository = new Repository({
       owner,
@@ -24,41 +21,52 @@ const createRepository = async (req, res) => {
       content,
       description,
       visibility,
-    })
+    });
 
-    const result = await newRepository.save()
+    const result = await newRepository.save();
 
     res.status(201).json({
       message: "Repository Created",
       repositoryID: result._id,
-    })
-
-  }catch(err){
-    console.error("Error while repository creation: ",err.message);
-    res.status(500).send({message: "Server Error"})
+    });
+  } catch (err) {
+    console.error("Error while repository creation: ", err.message);
+    res.status(500).send({ message: "Server Error" });
   }
 };
 
 const getAllRepositories = async (req, res) => {
-  try{
-    console.log("Mongoose Database: ", mongoose.connection.name);
-
-    const repositories = await Repository.find({}).populate("owner").populate("issues");
+  try {
+    const repositories = await Repository.find({})
+      .populate("owner")
+      .populate("issues");
 
     res.json(repositories);
-
-  }catch(err){
+  } catch (err) {
     console.error("Error while fetching repositories: ", err.message);
-    res.status(500).send({message: "Server Error"});
+    res.status(500).send({ message: "Server Error" });
   }
 };
 
-const fetchRepositoryById = (req, res) => {
-  res.send("REPO DETAILS FETCHED");
+const fetchRepositoryById = async (req, res) => {
+  const repoId = req.params.id;
+  try {
+    const repository = await Repository.find({ _id: repoId })
+      .populate("owner")
+      .populate("issues");
+
+    if (repository.length == 0) {
+      res.json({ message: "No Repository" });
+    }
+    res.json(repository);
+  } catch (err) {
+    console.error("Error while fetching repository: ", err.message);
+    res.status(500).send("Server Error");
+  }
 };
 
-const fetchRepositoryByName = (req, res) => {
-  res.send("REPO DETAILS FETCHED");
+const fetchRepositoryByName = async (req, res) => {
+  res.send("REPO BY NAME FETCHED");
 };
 
 const fetchRepositoriesForCurrentUser = (req, res) => {
@@ -76,7 +84,6 @@ const toggleVisibilityById = (req, res) => {
 const deleteRepositoryById = (req, res) => {
   res.send("REPO DELETED");
 };
-
 
 module.exports = {
   createRepository,
