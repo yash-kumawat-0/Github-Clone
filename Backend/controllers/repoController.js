@@ -79,8 +79,20 @@ const fetchRepositoryByName = async (req, res) => {
   }
 };
 
-const fetchRepositoriesForCurrentUser = (req, res) => {
-  res.send("REPO FOR CURRENT USER FETCHED");
+const fetchRepositoriesForCurrentUser = async (req, res) => {
+  const userID = req.user;
+  try {
+    const repositories = await Repository.find({ owner: userID });
+
+    if (!repositories || repositories.length == 0) {
+      return res.status(404).json({error:"User Repositories Not Found"})
+    }
+
+    res.json({message:"Repositories Found", repositories});
+  } catch (err) {
+    console.error("Error while fetching repositories: ", err.message);
+    res.status(500).send("Server Error");
+  }
 };
 
 const updateRepositoryById = (req, res) => {
