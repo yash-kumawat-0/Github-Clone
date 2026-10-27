@@ -95,12 +95,46 @@ const fetchRepositoriesForCurrentUser = async (req, res) => {
   }
 };
 
-const updateRepositoryById = (req, res) => {
-  res.send("REPO UPDATED");
+const updateRepositoryById = async (req, res) => {
+  const repoID = req.params.id;
+  const {name, content, description, visibility} = req.body;
+  try{
+    if(content !== undefined && (!Array.isArray(content) || content.some((item) => typeof item !== "string"))){
+      return res.status(400).json({error: "Content must be an array of strings"});
+    }
+
+    const repository = await Repository.findById(repoID);
+    if(!repository){
+      return res.status(404).json({error: "Repository Not Found"})
+    }
+
+    if(content){
+      repository.content.push(...content);
+    }
+    if(description !== undefined){
+      repository.description = description;
+    }
+    if(name !== undefined){
+      repository.name = name;
+    }
+    if(visibility !== undefined){
+      repository.visibility = visibility;
+    }
+
+    const updatedRepository = await repository.save();
+
+    res.json({
+      message: "Repository Updated Successfully",
+      repository: updatedRepository
+    })
+  }catch(err){
+    console.error("Error while updating repository: ", err.message);
+    res.status(500).send("Server Error")
+  }
 };
 
-const toggleVisibilityById = (req, res) => {
-  res.send("VISIBILITY TOGGLED");
+const toggleVisibilityById = async (req, res) => {
+  console.log("TOGGELED SUCCESSFULLY")
 };
 
 const deleteRepositoryById = (req, res) => {
